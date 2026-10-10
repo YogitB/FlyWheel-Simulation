@@ -9,7 +9,7 @@ public class FlywheelSim {
     public FlywheelSim(double inertia, double kv, double ka){
         this.momentOfInertia=inertia;
         this.kv=kv;
-        this.ka;
+        this.ka=ka;
     }
     public void update(double appliedVoltage, double dt){
         //Convert RPM to raidans
@@ -20,5 +20,8 @@ public class FlywheelSim {
         // Update velocity
         omega+=alpha *dt;
         currentRpm=omega*(60.0/(2*Math.PI));
+    }
+    public double getRpm(){
+        return currentRpm;
     }
 }
