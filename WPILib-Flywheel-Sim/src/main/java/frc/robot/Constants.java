@@ -16,4 +16,21 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+  public static final class FlywheelConstants{
+    public static final double TARGET_RPM=4000.0;
+    public static final double LOOP_PERIOD_SECONDS=0.02;//Standard Loop
+    // Constants for the physical loop 
+    public static final double MOMENT_OF_INERTIA=0.02;//Inertia of flywheel
+    public static final double KV=0.0012;//Friction constant
+        public static final double KA=0.05;//Acceleration constant
+        //Tuning can be required for specific hardware
+        public static final double kP=0.004; //Proportional gain
+        public static final double kI=0.0;//Integral gain
+        public static final double kD=0.0;//Derivative gain
+        public static final double kF=0.00055;//feedforward gain
+        public static final double kS=0.0;
+
+
+
+  }
 }

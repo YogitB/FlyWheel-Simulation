@@ -13,14 +13,16 @@ public class FlywheelController {
         this.f=f;
         this.s=s;
     }
-    public double calculate(double targetRpm, double currentRpm, double dt){
-        //Find the error
-        double error= targetRpm-currentRpm;
-        // Update the integral and derivative
-        errorSum+=error*dt;
-        double errorRate= (error-lastError)*dt;
-        lastError=error;
-        double output=(p*error)+(i*errorSum)+(d*errorRate)+(f * targetRpm) + (s * Math.signum(targetRpm));
-        return output;
+    public double calculate(double targetRpm, double currentRpm, double dt) {
+        double error = targetRpm - currentRpm;
+        
+        // Use proper constants mapping
+        double pOutput = p * error;
+        double feedforward = f * targetRpm;
+
+        double output = pOutput + feedforward;
+
+        // Safety clamp (-12V to 12V)
+        return Math.max(-12.0, Math.min(12.0, output));
     }
 }
