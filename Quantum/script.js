@@ -64,3 +64,112 @@ frictionSlider.addEventListener("input", updateDashboard);
 
 updateDashboard();
 
+function drawFlywheel() {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 115;
+
+    // clear last frame
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // draw outer rim
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    // draw inner circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * 0.72, 0, Math.PI * 2);
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    //draw eight spokes 
+    for (let i = 0; i < 8; i++) {
+        const spokeAngle = angle + i * (Math.PI / 4);
+
+        const endX = centerX + Math.cos(spokeAngle) * radius;
+        const endY = centerY + Math.sin(spokeAngle) * radius;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = "#94a3b8";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    // Draw hub
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 14, 0, Math.PI * 2);
+    ctx.fillStyle = "#38bdf8";
+    ctx.fill();
+}
+
+function animate(timestamp) {
+    if (!running) {
+        return;
+    }
+
+    // Convert milisecs into secs
+    let dt = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+
+    // Avoid a huge physics jump after a pause or lag
+    dt = Math.min(dt, 0.05);
+// Calculate current acceleeration
+    const results = calculatePhysics();
+
+    omega += results.alpha * dt;
+    angle += omega * dt;
+
+    updateDashboard();
+
+    // draws the flywheel
+    drawFlywheel();
+
+    // schedule the time fram
+    animationId = requestAnimationFrame(animate);
+}
+
+startButton.addEventListener("click", () => {
+    if (running) {
+        return;
+    }
+
+    running = true;
+    lastTime = performance.now();
+    animationId = requestAnimationFrame(animate);
+});
+
+pauseButton.addEventListener("click", () => {
+    running = false;
+
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+});
+
+resetButton.addEventListener("click", () => {
+    running = false;
+
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+
+    angle = 0;
+    omega = 0;
+    alpha = 0;
+    lastTime = 0;
+
+    updateDashboard();
+    drawFlywheel();
+});
+
+//
+drawFlywheel();
+
