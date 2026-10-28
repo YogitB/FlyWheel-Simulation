@@ -1,12 +1,84 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuantumLab</title>
+    <title>QuantumLab | Classical Mechanics</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>QuantumLab</h1>
-    <p>Exploring physics through code.</p>
+    <header>
+        <p class="eyebrow">PHYSICS SIMULATION LAB</p>
+        <h1>QuantumLab</h1>
+        <p>Explore the physics of rotational motion.</p>
+    </header>
+
+    <main>
+        <section class="panel">
+            <h2>Classical Flywheel</h2>
+            <p class="description">
+                Investigate how torque, inertia, and friction
+                affect a rotating object.
+            </p>
+
+            <canvas id="flywheel" width="600" height="400"></canvas>
+
+            <div class="buttons">
+                <button id="start">Start</button>
+                <button id="pause">Pause</button>
+                <button id="reset">Reset</button>
+            </div>
+        </section>
+
+        <section class="panel controls">
+            <h2>Experiment Controls</h2>
+
+            <div class="control">
+                <label for="torque">
+                    Applied Torque: <span id="torqueValue">0.5</span> N·m
+                </label>
+                <input id="torque" type="range"
+                    min="0" max="2" step="0.1" value="0.5">
+            </div>
+
+            <div class="control">
+                <label for="inertia">
+                    Moment of Inertia: <span id="inertiaValue">0.10</span> kg·m²
+                </label>
+                <input id="inertia" type="range"
+                    min="0.05" max="0.5" step="0.05" value="0.1">
+            </div>
+
+            <div class="control">
+                <label for="friction">
+                    Friction: <span id="frictionValue">0.02</span>
+                </label>
+                <input id="friction" type="range"
+                    min="0" max="0.1" step="0.01" value="0.02">
+            </div>
+
+            <h2>Live Measurements</h2>
+
+            <div class="measurement">
+                <span>Angular Velocity</span>
+                <strong id="omega">0.00 rad/s</strong>
+            </div>
+
+            <div class="measurement">
+                <span>Angular Acceleration</span>
+                <strong id="alpha">0.00 rad/s²</strong>
+            </div>
+
+            <div class="measurement">
+                <span>Rotational Energy</span>
+                <strong id="energy">0.00 J</strong>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        QuantumLab · Classical Mechanics Module
+    </footer>
 </body>
 </html>
