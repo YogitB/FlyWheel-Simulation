@@ -2,6 +2,11 @@
 const canvas = document.getElementById("flywheel");
 const ctx = canvas.getContext("2d");
 
+const graphCanvas = document.getElementById("velocityGraph");
+const graphCtx = graphCanvas.getContext("2d");
+
+const simulationTimeDisplay = document.getElementById("simulationTime");
+
 
 const startButton = document.getElementById("start");
 const pauseButton = document.getElementById("pause");
@@ -28,6 +33,8 @@ let alpha = 0;
 let running = false;
 let lastTime = 0;
 let animationId = null;
+let elapsedTime = 0; 
+let velocityHistory = [];
 function calculatePhysics() {
     const torque = Number(torqueSlider.value);
     const inertia = Number(inertiaSlider.value);
@@ -106,6 +113,104 @@ function drawFlywheel() {
     ctx.arc(centerX, centerY, 14, 0, Math.PI * 2);
     ctx.fillStyle = "#38bdf8";
     ctx.fill();
+}
+function drawVelocityGraph() {
+    const width = graphCanvas.width;
+    const height = graphCanvas.height;
+
+    const paddingLeft = 55;
+    const paddingRight = 20;
+    const paddingTop = 20;
+    const paddingBottom = 40;
+
+    const plotWidth = width - paddingLeft - paddingRight;
+    const plotHeight = height - paddingTop - paddingBottom;
+
+    graphCtx.clearRect(0, 0, width, height);
+
+    // Draw the graph background
+    graphCtx.fillStyle = "#0b1222";
+    graphCtx.fillRect(0, 0, width, height);
+
+    const maxTime = Math.max(5, elapsedTime);
+
+
+    const maxOmega = Math.max(
+        10,
+        ...velocityHistory.map(point => point.omega)
+    ) * 1.1;
+
+    // draw horizontal grid lines 
+    graphCtx.font = "12px Arial";
+    graphCtx.textAlign = "right";
+    graphCtx.textBaseline = "middle";
+
+    for (let i = 0; i <= 4; i++) {
+        const value = (maxOmega / 4) * i;
+        const y = height - paddingBottom
+            - (value / maxOmega) * plotHeight;
+
+        graphCtx.beginPath();
+        graphCtx.moveTo(paddingLeft, y);
+        graphCtx.lineTo(width - paddingRight, y);
+        graphCtx.strokeStyle = "#293449";
+        graphCtx.lineWidth = 1;
+        graphCtx.stroke();
+
+        graphCtx.fillStyle = "#94a3b8";
+        graphCtx.fillText(value.toFixed(1), paddingLeft - 8, y);
+    }
+
+    graphCtx.textAlign = "center";
+    graphCtx.textBaseline = "top";
+
+    for (let i = 0; i <= 5; i++) {
+        const value = (maxTime / 5) * i;
+        const x = paddingLeft + (value / maxTime) * plotWidth;
+
+        graphCtx.fillStyle = "#94a3b8";
+        graphCtx.fillText(value.toFixed(1), x, height - paddingBottom + 8);
+    }
+    graphCtx.fillStyle = "#e5e7eb";
+    graphCtx.font = "12px Arial";
+    graphCtx.textAlign = "center";
+
+    graphCtx.fillText(
+        "Time (s)",
+        paddingLeft + plotWidth / 2,
+        height - 12
+    );
+
+    graphCtx.save();
+    graphCtx.translate(15, paddingTop + plotHeight / 2);
+    graphCtx.rotate(-Math.PI / 2);
+    graphCtx.fillText("Angular velocity (rad/s)", 0, 0);
+    graphCtx.restore();
+
+    // draw angle velocity
+    if (velocityHistory.length < 2) {
+        return;
+    }
+
+    graphCtx.beginPath();
+
+    velocityHistory.forEach((point, index) => {
+        const x = paddingLeft
+            + (point.time / maxTime) * plotWidth;
+
+        const y = height - paddingBottom
+            - (point.omega / maxOmega) * plotHeight;
+
+        if (index === 0) {
+            graphCtx.moveTo(x, y);
+        } else {
+            graphCtx.lineTo(x, y);
+        }
+    });
+
+    graphCtx.strokeStyle = "#38bdf8";
+    graphCtx.lineWidth = 3;
+    graphCtx.stroke();
 }
 
 function animate(timestamp) {

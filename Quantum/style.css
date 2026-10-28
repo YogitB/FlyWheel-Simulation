@@ -162,3 +162,34 @@ footer {
         font-size: 34px;
     }
 }
+.graph-container {
+    margin-top: 28px;
+}
+
+.graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.graph-header h3 {
+    margin: 0;
+    font-size: 15px;
+}
+
+#simulationTime {
+    color: #38bdf8;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+#velocityGraph {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #0b1222;
+    border: 1px solid #293449;
+    border-radius: 12px;
+}
