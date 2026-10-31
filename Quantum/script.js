@@ -4,6 +4,8 @@ const ctx = canvas.getContext("2d");
 
 const graphCanvas = document.getElementById("velocityGraph");
 const graphCtx = graphCanvas.getContext("2d");
+const accelerationCanvas = document.getElementById("accelerationGraph");
+const accelerationCtx = accelerationCanvas.getContext("2d");
 
 const simulationTimeDisplay = document.getElementById("simulationTime");
 
@@ -35,6 +37,8 @@ let lastTime = 0;
 let animationId = null;
 let elapsedTime = 0; 
 let velocityHistory = [];
+let accelerationHistory = [];
+
 function calculatePhysics() {
     const torque = Number(torqueSlider.value);
     const inertia = Number(inertiaSlider.value);
@@ -212,6 +216,108 @@ function drawVelocityGraph() {
     graphCtx.lineWidth = 3;
     graphCtx.stroke();
 }
+function drawAccelerationGraph() {
+    const width = accelerationCanvas.width;
+    const height = accelerationCanvas.height;
+
+    const paddingLeft = 65;
+    const paddingRight = 20;
+    const paddingTop = 20;
+    const paddingBottom = 40;
+
+    const plotWidth = width - paddingLeft - paddingRight;
+    const plotHeight = height - paddingTop - paddingBottom;
+
+    accelerationCtx.clearRect(0, 0, width, height);
+
+    accelerationCtx.fillStyle = "#0b1222";
+    accelerationCtx.fillRect(0, 0, width, height);
+
+    const maxTime = Math.max(5, elapsedTime);
+
+    const maxAlpha = Math.max(
+        10,
+        ...accelerationHistory.map(point => Math.abs(point.alpha))
+    ) * 1.1;
+
+    // Draw grid lines and labels.
+    accelerationCtx.font = "12px Arial";
+    accelerationCtx.textAlign = "right";
+    accelerationCtx.textBaseline = "middle";
+
+    for (let i = 0; i <= 4; i++) {
+        const value = -maxAlpha + (2 * maxAlpha / 4) * i;
+
+        const y = height - paddingBottom
+            - ((value + maxAlpha) / (2 * maxAlpha)) * plotHeight;
+
+        accelerationCtx.beginPath();
+        accelerationCtx.moveTo(paddingLeft, y);
+        accelerationCtx.lineTo(width - paddingRight, y);
+
+        accelerationCtx.strokeStyle = "#293449";
+        accelerationCtx.stroke();
+
+        accelerationCtx.fillStyle = "#94a3b8";
+        accelerationCtx.fillText(value.toFixed(1), paddingLeft - 8, y);
+    }
+
+    // Draw time labels.
+    accelerationCtx.textAlign = "center";
+    accelerationCtx.textBaseline = "top";
+
+    for (let i = 0; i <= 5; i++) {
+        const value = (maxTime / 5) * i;
+        const x = paddingLeft + (value / maxTime) * plotWidth;
+
+        accelerationCtx.fillStyle = "#94a3b8";
+        accelerationCtx.fillText(
+            value.toFixed(1),
+            x,
+            height - paddingBottom + 8
+        );
+    }
+
+    // Draw axis titles.
+    accelerationCtx.fillStyle = "#e5e7eb";
+
+    accelerationCtx.fillText(
+        "Time (s)",
+        paddingLeft + plotWidth / 2,
+        height - 12
+    );
+
+    accelerationCtx.save();
+    accelerationCtx.translate(15, paddingTop + plotHeight / 2);
+    accelerationCtx.rotate(-Math.PI / 2);
+    accelerationCtx.fillText("Angular acceleration (rad/s²)", 0, 0);
+    accelerationCtx.restore();
+
+    // Draw acceleration line.
+    if (accelerationHistory.length < 2) {
+        return;
+    }
+
+    accelerationCtx.beginPath();
+
+    accelerationHistory.forEach((point, index) => {
+        const x = paddingLeft
+            + (point.time / maxTime) * plotWidth;
+
+        const y = height - paddingBottom
+            - ((point.alpha + maxAlpha) / (2 * maxAlpha)) * plotHeight;
+
+        if (index === 0) {
+            accelerationCtx.moveTo(x, y);
+        } else {
+            accelerationCtx.lineTo(x, y);
+        }
+    });
+
+    accelerationCtx.strokeStyle = "#a78bfa";
+    accelerationCtx.lineWidth = 3;
+    accelerationCtx.stroke();
+}
 
 function animate(timestamp) {
     if (!running) {
@@ -229,6 +335,14 @@ function animate(timestamp) {
 
     omega += results.alpha * dt;
     angle += omega * dt;
+    elapsedTime+=dt;
+    const lastPoint=velocityHistory[velocityHistory.length-1];
+    if (!lastPoint || elapsedTime - lastPoint.time >= 0.1) {
+        velocityHistory.push({
+            time: elapsedTime,
+            omega: omega
+        });
+    }   
 
     updateDashboard();
 
@@ -273,8 +387,12 @@ resetButton.addEventListener("click", () => {
 
     updateDashboard();
     drawFlywheel();
+    drawVelocityGraph();
+    simulationTimeDisplay.textContent= "Time: 0.00s";
 });
 
 //
 drawFlywheel();
+    drawVelocityGraph();
+
 
