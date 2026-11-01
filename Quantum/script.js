@@ -324,32 +324,39 @@ function animate(timestamp) {
         return;
     }
 
-    // Convert milisecs into secs
     let dt = (timestamp - lastTime) / 1000;
     lastTime = timestamp;
 
-    // Avoid a huge physics jump after a pause or lag
     dt = Math.min(dt, 0.05);
-// Calculate current acceleeration
+
     const results = calculatePhysics();
 
     omega += results.alpha * dt;
     angle += omega * dt;
-    elapsedTime+=dt;
-    const lastPoint=velocityHistory[velocityHistory.length-1];
+    elapsedTime += dt;
+
+    const lastPoint = velocityHistory[velocityHistory.length - 1];
+
     if (!lastPoint || elapsedTime - lastPoint.time >= 0.1) {
         velocityHistory.push({
             time: elapsedTime,
             omega: omega
         });
-    }   
+
+        accelerationHistory.push({
+            time: elapsedTime,
+            alpha: results.alpha
+        });
+    }
 
     updateDashboard();
-
-    // draws the flywheel
     drawFlywheel();
+    drawVelocityGraph();
+    drawAccelerationGraph();
 
-    // schedule the time fram
+    simulationTimeDisplay.textContent =
+        "Time: " + elapsedTime.toFixed(2) + " s";
+
     animationId = requestAnimationFrame(animate);
 }
 
@@ -388,11 +395,13 @@ resetButton.addEventListener("click", () => {
     updateDashboard();
     drawFlywheel();
     drawVelocityGraph();
+    drawAccelerationGraph();
     simulationTimeDisplay.textContent= "Time: 0.00s";
 });
 
 //
 drawFlywheel();
-    drawVelocityGraph();
+drawVelocityGraph();
+drawAccelerationGraph();
 
 
