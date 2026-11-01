@@ -38,6 +38,7 @@ let animationId = null;
 let elapsedTime = 0; 
 let velocityHistory = [];
 let accelerationHistory = [];
+let theoreticalHistory = [];
 
 function calculatePhysics() {
     const torque = Number(torqueSlider.value);
@@ -55,6 +56,24 @@ function calculatePhysics() {
         alpha: alpha,
         energy: energy
     };
+}
+function calculateTheoreticalOmega(time) {
+    const torque = Number(torqueSlider.value);
+    const inertia = Number(inertiaSlider.value);
+    const friction = Number(frictionSlider.value);
+
+    const initialOmega = 0;
+
+    // special case: no friction
+    if (friction === 0) {
+        return initialOmega + (torque / inertia) * time;
+    }
+
+    const terminalOmega = torque / friction;
+
+    return terminalOmega +
+        (initialOmega - terminalOmega) *
+        Math.exp((-friction * time) / inertia);
 }
 
 function updateDashboard() {
@@ -347,6 +366,10 @@ function animate(timestamp) {
             time: elapsedTime,
             alpha: results.alpha
         });
+        theoreticalHistory.push({
+            time: elapsedTime,
+            omega: calculateTheoreticalOmega(elapsedTime)
+        });
     }
 
     updateDashboard();
@@ -391,6 +414,9 @@ resetButton.addEventListener("click", () => {
     omega = 0;
     alpha = 0;
     lastTime = 0;
+    velocityHistory = [];
+    accelerationHistory = [];
+    theoreticalHistory = [];
 
     updateDashboard();
     drawFlywheel();
