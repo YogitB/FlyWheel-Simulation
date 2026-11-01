@@ -210,19 +210,16 @@ function drawVelocityGraph() {
     graphCtx.fillText("Angular velocity (rad/s)", 0, 0);
     graphCtx.restore();
 
-    // draw angle velocity
-    if (velocityHistory.length < 2) {
-        return;
-    }
-
+    // Draw simulated angular velocity
+if (velocityHistory.length >= 2) {
     graphCtx.beginPath();
 
     velocityHistory.forEach((point, index) => {
-        const x = paddingLeft
-            + (point.time / maxTime) * plotWidth;
+        const x = paddingLeft +
+            (point.time / maxTime) * plotWidth;
 
-        const y = height - paddingBottom
-            - (point.omega / maxOmega) * plotHeight;
+        const y = height - paddingBottom -
+            (point.omega / maxOmega) * plotHeight;
 
         if (index === 0) {
             graphCtx.moveTo(x, y);
@@ -234,6 +231,53 @@ function drawVelocityGraph() {
     graphCtx.strokeStyle = "#38bdf8";
     graphCtx.lineWidth = 3;
     graphCtx.stroke();
+}
+
+// Draw theoretical angular velocity
+if (theoreticalHistory.length >= 2) {
+    graphCtx.beginPath();
+
+    theoreticalHistory.forEach((point, index) => {
+        const x = paddingLeft +
+            (point.time / maxTime) * plotWidth;
+
+        const y = height - paddingBottom -
+            (point.omega / maxOmega) * plotHeight;
+
+        if (index === 0) {
+            graphCtx.moveTo(x, y);
+        } else {
+            graphCtx.lineTo(x, y);
+        }
+    });
+
+    graphCtx.strokeStyle = "#a78bfa";
+    graphCtx.lineWidth = 3;
+    graphCtx.setLineDash([7, 5]);
+    graphCtx.stroke();
+    graphCtx.setLineDash([]);
+}
+
+// Draw graph legend
+graphCtx.font = "12px Arial";
+graphCtx.textAlign = "left";
+
+graphCtx.fillStyle = "#38bdf8";
+graphCtx.fillRect(75, 8, 18, 3);
+
+graphCtx.fillStyle = "#e5e7eb";
+graphCtx.fillText("Simulation", 100, 14);
+
+graphCtx.strokeStyle = "#a78bfa";
+graphCtx.setLineDash([5, 3]);
+graphCtx.beginPath();
+graphCtx.moveTo(215, 10);
+graphCtx.lineTo(235, 10);
+graphCtx.stroke();
+graphCtx.setLineDash([]);
+
+graphCtx.fillStyle = "#e5e7eb";
+graphCtx.fillText("Theory", 242, 14);
 }
 function drawAccelerationGraph() {
     const width = accelerationCanvas.width;
