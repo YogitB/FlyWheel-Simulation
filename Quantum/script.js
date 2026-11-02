@@ -6,6 +6,7 @@ const graphCanvas = document.getElementById("velocityGraph");
 const graphCtx = graphCanvas.getContext("2d");
 const accelerationCanvas = document.getElementById("accelerationGraph");
 const accelerationCtx = accelerationCanvas.getContext("2d");
+const errorDisplay= document.getElementById("errorDisplay");
 
 const simulationTimeDisplay = document.getElementById("simulationTime");
 
@@ -86,6 +87,18 @@ function updateDashboard() {
     omegaDisplay.textContent = omega.toFixed(2) + " rad/s";
     alphaDisplay.textContent = results.alpha.toFixed(2) + " rad/s²";
     energyDisplay.textContent = results.energy.toFixed(2) + " J";
+    let maxError = 0;
+
+    for (let i = 0; i < velocityHistory.length; i++) {
+        const simulatedOmega = velocityHistory[i].omega;
+        const theoreticalOmega = theoreticalHistory[i].omega;
+
+        const error = Math.abs(simulatedOmega - theoreticalOmega);
+
+        maxError = Math.max(maxError, error);
+    }
+
+    errorDisplay.textContent = maxError.toFixed(4) + " rad/s";
 }
 
 torqueSlider.addEventListener("input", updateDashboard);
