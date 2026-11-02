@@ -356,11 +356,8 @@ function drawAccelerationGraph() {
     accelerationCtx.fillText("Angular acceleration (rad/s²)", 0, 0);
     accelerationCtx.restore();
 
-    // Draw acceleration line.
-    if (accelerationHistory.length < 2) {
-        return;
-    }
-
+    // Draw simulated angular acceleration
+if (accelerationHistory.length >= 2) {
     accelerationCtx.beginPath();
 
     accelerationHistory.forEach((point, index) => {
@@ -377,9 +374,61 @@ function drawAccelerationGraph() {
         }
     });
 
-    accelerationCtx.strokeStyle = "#a78bfa";
+    accelerationCtx.strokeStyle = "#38bdf8";
     accelerationCtx.lineWidth = 3;
     accelerationCtx.stroke();
+}
+
+    // Draw theoretical angular acceleration
+    if (theoreticalHistory.length >= 2) {
+        accelerationCtx.beginPath();
+
+        theoreticalHistory.forEach((point, index) => {
+            const theoreticalAlpha =
+                (Number(torqueSlider.value)
+                - Number(frictionSlider.value) * point.omega)
+                / Number(inertiaSlider.value);
+
+            const x = paddingLeft
+                + (point.time / maxTime) * plotWidth;
+
+            const y = height - paddingBottom
+                - ((theoreticalAlpha + maxAlpha) / (2 * maxAlpha)) * plotHeight;
+
+            if (index === 0) {
+                accelerationCtx.moveTo(x, y);
+            } else {
+                accelerationCtx.lineTo(x, y);
+            }
+        });
+
+        accelerationCtx.strokeStyle = "#a78bfa";
+        accelerationCtx.lineWidth = 3;
+        accelerationCtx.setLineDash([7, 5]);
+        accelerationCtx.stroke();
+        accelerationCtx.setLineDash([]);
+    }
+
+    // Draw legend
+    accelerationCtx.font = "12px Arial";
+    accelerationCtx.textAlign = "left";
+
+    accelerationCtx.fillStyle = "#38bdf8";
+    accelerationCtx.fillRect(75, 8, 18, 3);
+
+    accelerationCtx.fillStyle = "#e5e7eb";
+    accelerationCtx.fillText("Simulation", 100, 14);
+
+    accelerationCtx.strokeStyle = "#a78bfa";
+    accelerationCtx.setLineDash([5, 3]);
+    accelerationCtx.beginPath();
+    accelerationCtx.moveTo(215, 10);
+    accelerationCtx.lineTo(235, 10);
+    accelerationCtx.stroke();
+    accelerationCtx.setLineDash([]);
+
+    accelerationCtx.fillStyle = "#e5e7eb";
+    accelerationCtx.fillText("Theory", 242, 14);
 }
 
 function animate(timestamp) {
